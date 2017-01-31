@@ -5,6 +5,8 @@ weibo-follow-clean
 
 因为还有事情只能写基本功能了，初六回来后*有可能*写个UI？
 
+安装：Firefox:Greasemonkey Chrome:Tampermonkey，然后点进脚本的[Raw](https://github.com/esterTion/weibo-follow-clean/raw/master/Weibo_Follow_Clean.user.js)
+
 ![](https://github.com/esterTion/weibo-follow-clean/blob/master/img/wfc1.png)
 ![](https://github.com/esterTion/weibo-follow-clean/blob/master/img/wfc2.png)
 
