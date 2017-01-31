@@ -2,9 +2,11 @@ weibo-follow-clean
 ===
 ## 简单粗暴的微博粉丝清理 - 猴子版
 一上午爆肝两小时完成，截图时的运行逻辑有问题跑了一遍才意识到（应该从第十页倒序到第一页防漏，代码里改了）
+
 因为还有事情只能写基本功能了，初六回来后*有可能*写个UI？
-![](https://github.com/TimeCompass/weibo-follow-clean/blob/master/img/wfc1.png)
-![](https://github.com/TimeCompass/weibo-follow-clean/blob/master/img/wfc2.png)
+
+![](https://github.com/esterTion/weibo-follow-clean/blob/master/img/wfc1.png)
+![](https://github.com/esterTion/weibo-follow-clean/blob/master/img/wfc2.png)
 
 # 原始Readme
 ## 简单粗暴的微博粉丝清理
