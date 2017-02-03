@@ -3,9 +3,9 @@ weibo-follow-clean
 ## 简单粗暴的微博粉丝清理 - 猴子版
 重要：清除逻辑并算不是特别科学，有很大可能会误杀正常粉丝，注意保留清除记录复查
 
-一上午爆肝两小时完成，截图时的运行逻辑有问题跑了一遍才意识到（应该从第十页倒序到第一页防漏，代码里改了）
+2/3：完成了ui，改进代码用了并发，效率应该会有所提升
 
-因为还有事情只能写基本功能了，初六回来后*有可能*写个UI？
+一上午爆肝两小时完成，截图时的运行逻辑有问题跑了一遍才意识到（应该从第十页倒序到第一页防漏，代码里改了）
 
 安装：Firefox:Greasemonkey Chrome:Tampermonkey，然后点进脚本的[Raw](https://github.com/esterTion/weibo-follow-clean/raw/master/Weibo_Follow_Clean.user.js)
 

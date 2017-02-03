@@ -14,7 +14,6 @@
 
 if(window.parent!=window)
 	return;
-console.log('init',$CONFIG['uid']);
 if($CONFIG['uid']==undefined)
 	return;
 var uid=$CONFIG['uid'],
@@ -33,9 +32,18 @@ param={
 	'_t':'FM_'+Date.now()
 },
 logarr=[],
-log=function(str){
-	console.log(str);
+outputLog=function(){
+	var dest=document.getElementById('weiboFollowCleanLog'),i=0;
+	if(dest==null)
+		return;
+	dest.innerHTML=logarr.join('\n');
+	dest.scrollTop=dest.scrollHeight;
+},
+log=function(str,replaceLast){
+	if(replaceLast!=undefined)
+		logarr.pop();
 	logarr.push(str);
+	outputLog();
 },
 buildParam=function(param){
 	var i,arr=[];
@@ -44,15 +52,15 @@ buildParam=function(param){
 	}
 	return arr.join('&');
 },
-xhrRequest=function(isPost,url,postdata,callback){
+xhrRequest=function(isPost,url,postdata,callback,callbackData){
 	var xhr=new XMLHttpRequest(),poststr='';
 	xhr.open(isPost?'POST':'GET',url,true);
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState==4){
 			if(xhr.status==200){
-				callback(xhr.response)
+				callback(xhr.response,callbackData)
 			}else{
-				callback({code:-502})
+				callback('{"code":-502,"msg":"网络错误"}',callbackData)
 			}
 		}
 	}
@@ -63,32 +71,36 @@ xhrRequest=function(isPost,url,postdata,callback){
 	xhr.send(poststr);
 },
 remove=function(fandata){
-	log('移除粉丝 '+fandata.fnick);
-	xhrRequest(true,unurl,fandata,removeCallback);
+	xhrRequest(true,unurl,fandata,removeCallback,fandata);
 },
-removeCallback=function(resp){
+removeCallback=function(resp,fandata){
 	try{
 		var json=JSON.parse(resp);
 		if(json.code==100000){
-			log('成功');
+			log('移除粉丝 <a usercard="id='+fandata.uid+'" href="/u/'+fandata.uid+'" target="_blank">'+fandata.fnick+'</a> 成功');
 		}else{
-			log('失败');
+			log('移除粉丝 <a usercard="id='+fandata.uid+'" href="/u/'+fandata.uid+'" target="_blank">'+fandata.fnick+'</a> 失败:['+json.code+']'+json.msg);
 		}
 	}catch(e){
-		log('失败');
+		log('移除粉丝 <a usercard="id='+fandata.uid+'" href="/u/'+fandata.uid+'" target="_blank">'+fandata.fnick+'</a> 失败:'+resp);
 	}
 	mainLoop();
 },
 main=function(){
-	log(param['Pl_Official_RelationFans__88_page']);
-	xhrRequest(false,url+buildParam(param),{},processor);
+	logarr.push('\n----------'+new Date().toLocaleString()+'----------\n');
+	logarr.push('');
+	while(param.Pl_Official_RelationFans__88_page>=1){
+		xhrRequest(false,url+buildParam(param),{},processor,param.Pl_Official_RelationFans__88_page--);
+	}
+	param.Pl_Official_RelationFans__88_page=10;
 },
 processList=[],
-processor=function(resp){
-	log('loaded page');
+loadedCount=0,
+parser=new DOMParser(),
+processor=function(resp,page){
+	log('已获取粉丝列表 '+(loadedCount+1)+'/10页',true);
 	resp=resp.replace('<script'+'>parent.FM.view(','').replace(')</'+'script>','');
 	var json=JSON.parse(resp),
-	parser=new DOMParser(),
 	content=parser.parseFromString(json.html, "text/html");
 	window.tempContent=content;
 	var fanlist=content.querySelectorAll('.info_name.W_fb.W_f14'),i=0,fan,name,wid,datas,data=[];
@@ -108,34 +120,27 @@ processor=function(resp){
 		else if(data[2]==0)
 			processList.push({uid:wid,fnick:name});
 	}
-	mainLoop();
+	if(++loadedCount==10){
+		mainLoop();
+		loadedCount=0;
+	}
 },
 mainLoop=function(){
-	if(processList.length==0){
-		param.Pl_Official_RelationFans__88_page--;
-		if(param.Pl_Official_RelationFans__88_page<1){
-			log('目前只操作十页，退出');
-			param.Pl_Official_RelationFans__88_page=10;
-			return;
-		}
-		main();
-		return;
+	var next;
+	while(processList.length>0){
+		next=processList.shift();
+		remove(next);
 	}
-	var next=processList.shift();
-	remove(next);
 };
 setTimeout(function(){
 	var before=document.querySelector('.gn_topmenulist_set ul li.line.S_line1'),temp=document.createElement('li');
 	before.parentNode.insertBefore(temp,before);
-	temp.outerHTML='<li class="line S_line1"></li><li><a id="weiboFollowClean" title="日志输出至控制台">开始搞事</a></li><li><a id="weiboFollowClean_log" title="日志输出至控制台">搞事记录</a></li>'
+	temp.outerHTML='<li class="line S_line1"></li><li><a id="weiboFollowClean" title="日志输出至控制台">开始搞事</a></li>'
 	document.getElementById('weiboFollowClean').addEventListener('click',function(){
-		alert('备好F12，暂时不弄UI');
+		STK.ui.dialog({title: '搞事记录', content: '<div class="layer_dialogue_v5"><div style="width:100%;height:200px;white-space:pre-wrap;word-break:break-all;overflow:auto;line-height:16px" id="weiboFollowCleanLog"></div></div>'}).show()
 		main();
 	});
-	document.getElementById('weiboFollowClean_log').addEventListener('click',function(){
-		console.log(logarr.join('\n'));
-	});
-},5e3)
+},1e3)
 
 window.weiboFollowClean=main;
 window.weiboFollowClean.logs=logarr;
